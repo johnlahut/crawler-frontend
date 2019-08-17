@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>
+  New Filter
+</h1>
+<mat-dialog-content>
+  <div fxLayout>
+    <mat-form-field>
+      <input matInput placeholder="Filter name" [(ngModel)]="name">
+    </mat-form-field>
+  </div>
+  <div fxLayout>
+    <mat-form-field>
+      <input matInput placeholder="Filter URL" [(ngModel)]="url">
+    </mat-form-field>
+  </div>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="onAddClick()">Add Filter</button>
+  <button mat-raised-button [mat-dialog-close]="data">Cancel</button>
+</mat-dialog-actions>

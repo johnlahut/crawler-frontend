@@ -1,0 +1,371 @@
+<mat-expansion-panel style="margin-bottom: 10px;">
+  <mat-expansion-panel-header>
+    Debug Information
+  </mat-expansion-panel-header>
+
+  <b><u>Current focused URL information: </u></b>
+  <div *ngFor="let item of focusedUrl | keyvalue">
+
+    <div *ngIf="item.key !== 'contact'"><b>{{item.key}}</b>: {{item.value}}</div>
+    <div *ngIf="item.key === 'contact'">
+      <div *ngFor="let i of item.value | keyvalue">
+        <b>{{i.key}}</b>: {{i.value}}
+      </div>
+    </div>
+  </div>
+
+</mat-expansion-panel>
+
+<div class="container" style="padding-bottom: 10px; padding-left: 14px;" fxLayout>
+  <!--<button mat-raised-button (click)="fileUpload()"><mat-icon>file_copy</mat-icon> Upload File</button>-->
+  <input class="ng-hide" type="file" (click)="fileUpload()">
+</div>
+
+<div class="container" fxLayout>
+
+  <!-- URL Status -->
+  <div fxFlex="80%" fxLayout fxLayoutGap="2px" fxLayoutAlign="space-evenly">
+
+    <mat-card class="url-card">
+      <ag-grid-angular
+        class="ag-theme-material url-list"
+        [rowData]="notStartedData"
+        [columnDefs]="notStartedColumnDef"
+        [gridOptions]="gridOptions"
+        rowSelection="single"
+        (selectionChanged)="onSelectionChanged($event, globals.NOT_STARTED_STATUS)"
+        (gridReady)="onGridReady($event, globals.NOT_STARTED_STATUS)"
+        (cellClicked)="onCellClicked($event, globals.NOT_STARTED_STATUS)"
+      >
+      </ag-grid-angular>
+    </mat-card>
+
+    <mat-card class="url-card">
+      <ag-grid-angular
+        class="ag-theme-material url-list"
+        [rowData]="inProgressData"
+        [columnDefs]="inProgressColumnDef"
+        rowSelection="single"
+        (selectionChanged)="onSelectionChanged($event, globals.IN_PROGRESS_STATUS)"
+        (gridReady)="onGridReady($event, globals.IN_PROGRESS_STATUS)"
+        (cellClicked)="onCellClicked($event, globals.IN_PROGRESS_STATUS)"
+      >
+      </ag-grid-angular>
+    </mat-card>
+
+    <mat-card class="url-card">
+      <ag-grid-angular
+        class="ag-theme-material url-list"
+        [rowData]="completedData"
+        [columnDefs]="completedColumnDef"
+        rowSelection="single"
+        (selectionChanged)="onSelectionChanged($event, globals.COMPLETE_STATUS)"
+        (gridReady)="onGridReady($event, globals.COMPLETE_STATUS)"
+        (cellClicked)="onCellClicked($event, globals.COMPLETE_STATUS)"
+      >
+      </ag-grid-angular>
+    </mat-card>
+
+    <mat-card class="url-card">
+      <ag-grid-angular
+        class="ag-theme-material url-list"
+        [rowData]="warningData"
+        [columnDefs]="warningColumnDef"
+        rowSelection="single"
+        (selectionChanged)="onSelectionChanged($event, globals.WARNING_STATUS)"
+        (gridReady)="onGridReady($event, globals.WARNING_STATUS)"
+        (cellClicked)="onCellClicked($event, globals.WARNING_STATUS)"
+      >
+      </ag-grid-angular>
+    </mat-card>
+
+    <mat-card class="url-card">
+      <ag-grid-angular
+        class="ag-theme-material url-list"
+        [rowData]="errorData"
+        [columnDefs]="errorColumnDef"
+        rowSelection="single"
+        (selectionChanged)="onSelectionChanged($event, globals.ERROR_STATUS)"
+        (gridReady)="onGridReady($event, globals.ERROR_STATUS)"
+        (cellClicked)="onCellClicked($event, globals.ERROR_STATUS)"
+      >
+      </ag-grid-angular>
+    </mat-card>
+
+  </div>
+
+  <!-- Main control buttons -->
+  <div fxLayout="column" fxFlex="20%" fxLayoutAlign="space-evenly center">
+    <button
+      mat-raised-button
+      class="success-background white-fg control-buttons"
+      (click)="onStart()">
+      <mat-icon class="white-fg">play_arrow</mat-icon> Start
+    </button>
+    <button mat-raised-button color="accent" class="control-buttons"><mat-icon>pause</mat-icon> Pause</button>
+    <button mat-raised-button color="warn" class="control-buttons"><mat-icon>stop</mat-icon> Stop</button>
+    <button mat-raised-button color="primary" class="control-buttons"><mat-icon>pageview</mat-icon> Review</button>
+  </div>
+
+</div>
+
+
+<!-- URL Details and Settings -->
+<mat-expansion-panel style="padding-top: 5px;" expanded="true">
+  <mat-expansion-panel-header>
+    <h4>URL details and settings for {{focusedUrl.url}}</h4>
+  </mat-expansion-panel-header>
+
+  <div fxLayout style="padding-top: 10px;" fxLayoutGap="50px">
+
+    <div fxLayout="column" fxFlex="50%">
+      <mat-card>
+        <mat-card-header fxLayout="row">
+          <mat-card-title>
+            {{focusedUrl.url}}
+          </mat-card-title>
+          <mat-card-subtitle>
+            Status Information for {{focusedUrl.url}}
+          </mat-card-subtitle>
+          <div fxFlex></div>
+
+          <!-- menu -->
+          <button mat-icon-button [matMenuTriggerFor]="urlAdmin"><mat-icon>more_vert</mat-icon></button>
+          <mat-menu #urlAdmin>
+            <a
+              mat-menu-item
+              (click)="downloadLogs(focusedUrl)"
+              [href]="logUrl"
+              [download]="logFilename"
+            >Download Logs</a>
+            <button mat-menu-item>Override</button>
+          </mat-menu>
+        </mat-card-header>
+
+        <mat-card-content>
+          <mat-list>
+            <mat-list-item>
+              <p><strong>Name:</strong> {{focusedUrl.contact.name}}</p>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+
+            <mat-list-item>
+              <p><strong>Status:</strong> {{focusedUrl.status | titlecase}}</p>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+
+            <mat-list-item>
+              <p><strong>Contact Information:</strong></p>
+            </mat-list-item>
+            <mat-list-item style="margin-bottom: 10px;"><p>
+              {{focusedUrl.contact.phone}} <br>
+              {{focusedUrl.contact.street}} <br>
+              {{focusedUrl.contact.city}},
+              {{focusedUrl.contact.state}}
+              {{focusedUrl.contact.zip}}
+            </p></mat-list-item>
+            <mat-divider style="margin-bottom: 15px;"></mat-divider>
+
+            <div fxLayout>
+              <mat-list-item>
+                <div fxFlex="33%"></div>
+
+
+
+                <div fxFlex="33%"></div>
+              </mat-list-item>
+            </div>
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- URL specific filtering -->
+    <div fxLayout="column" fxFlex="50%">
+      <mat-card>
+
+        <mat-card-header>
+          <mat-card-title>
+            Crawler Filtering
+          </mat-card-title>
+          <mat-card-subtitle>
+            Set URL specific filtering settings
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <mat-list fxLayout="column">
+
+            <!-- Look for section -->
+            <mat-list-item><h4>Look For:</h4></mat-list-item>
+            <mat-list-item>
+              <div fxLayout fxLayoutGap="10px">
+                <div *ngFor="let filter of globals.lookForFilters">
+                  <div *ngIf="focusedUrl.lookForFilter.includes(filter); else look_for_default">
+                    <mat-button-toggle class="toggle-button {{globals.lookForButtonClass}}" checked>{{filter | titlecase}}</mat-button-toggle>
+                  </div>
+                  <ng-template #look_for_default>
+                    <mat-button-toggle class="toggle-button {{globals.lookForButtonClass}}">{{filter | titlecase}}</mat-button-toggle>
+                  </ng-template>
+                </div>
+              </div>
+
+              <!-- Filtering add/menu section -->
+              <div fxFlex></div>
+              <button
+                mat-icon-button
+                (click)="openDialog(globals.LOOK_FOR_FILTER)">
+                <mat-icon class="success-icon">add_circle</mat-icon>
+              </button>
+              <button mat-icon-button [matMenuTriggerFor]="lookForMenu"><mat-icon>more_vert</mat-icon></button>
+              <mat-menu #lookForMenu>
+                <button mat-menu-item (click)="loadDefault(focusedUrl.id, globals.LOOK_FOR_FILTER)">Load Default</button>
+              </mat-menu>
+            <mat-divider></mat-divider>
+          </mat-list-item>
+
+
+            <!-- Content filter section -->
+            <mat-list-item><h4>On:</h4></mat-list-item>
+            <mat-list-item>
+              <div fxLayout fxLayoutGap="10px">
+                <div *ngFor="let filter of globals.contentTypeFilters">
+                  <div *ngIf="focusedUrl.contentTypeFilter.includes(filter); else content_type_default">
+                    <mat-button-toggle class="toggle-button {{globals.contentTypeButtonClass}}" checked>{{filter | titlecase}}</mat-button-toggle>
+                  </div>
+                  <ng-template #content_type_default>
+                    <mat-button-toggle class="toggle-button {{globals.contentTypeButtonClass}}">{{filter | titlecase}}</mat-button-toggle>
+                  </ng-template>
+                </div>
+              </div>
+
+              <!-- Filtering add/menu section -->
+              <div fxFlex></div>
+              <button
+                mat-icon-button
+                (click)="openDialog(globals.CONTENT_FILTER)">
+                <mat-icon class="success-icon">add_circle</mat-icon>
+              </button>
+              <button mat-icon-button [matMenuTriggerFor]="onMenu"><mat-icon>more_vert</mat-icon></button>
+              <mat-menu #onMenu>
+                <button mat-menu-item (click)="loadDefault(focusedUrl.id, globals.CONTENT_FILTER)">Load Default</button>
+              </mat-menu>
+              <mat-divider></mat-divider>
+            </mat-list-item>
+
+
+            <!-- Except on section -->
+            <mat-list-item><h4>Except: </h4></mat-list-item>
+            <mat-list-item>
+              <div fxLayout fxLayoutGap="10px">
+                <div *ngFor="let filter of globals.excludeFilters">
+                  <div *ngIf="focusedUrl.excludeFilter.includes(filter); else exclude_default">
+                    <mat-button-toggle class="toggle-button {{globals.excludeButtonClass}}" checked>{{filter | titlecase}}</mat-button-toggle>
+                  </div>
+                  <ng-template #exclude_default>
+                    <mat-button-toggle class="toggle-button {{globals.excludeButtonClass}}">{{filter | titlecase}}</mat-button-toggle>
+                  </ng-template>
+                </div>
+              </div>
+
+              <!-- Filtering add/menu section -->
+              <div fxFlex></div>
+              <button
+                mat-icon-button
+                (click)="openDialog(globals.EXCLUDE_FILTER)">
+                <mat-icon class="success-icon">add_circle</mat-icon>
+              </button>
+              <button mat-icon-button [matMenuTriggerFor]="exceptMenu"><mat-icon>more_vert</mat-icon></button>
+              <mat-menu #exceptMenu>
+                <button mat-menu-item (click)="loadDefault(focusedUrl.id, globals.EXCLUDE_FILTER)">Load Default</button>
+              </mat-menu>
+            </mat-list-item>
+
+
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </div>
+
+  <div fxLayout fxLayoutAlign="center">
+
+    <!-- Not started queue option buttons -->
+    <div *ngIf="focusedUrl.status === globals.NOT_STARTED_STATUS">
+      <div fxLayoutGap="10px">
+        <button
+          mat-raised-button
+          class="action-buttons cancel-color"
+          (click)="removeURL(focusedUrl.id, focusedUrl.status)"
+        >Remove</button>
+        <button
+          mat-raised-button
+          class="action-buttons success-color"
+          (click)="updateSettings(focusedUrl.id)"
+        >Update Settings</button>
+      </div>
+    </div>
+
+    <!-- in progress queue option buttons -->
+    <div *ngIf="focusedUrl.status === globals.IN_PROGRESS_STATUS">
+      <div fxLayoutGap="10px">
+        <button
+          mat-raised-button
+          class="action-buttons cancel-color"
+          (click)="cancelURL(focusedUrl.id, focusedUrl.status)"
+        >Cancel</button>
+        <button
+          mat-raised-button
+          class="action-buttons success-color"
+          (click)="updateSettings(focusedUrl.id)"
+        >Update Settings</button>
+      </div>
+    </div>
+
+    <!-- complete queue option buttons -->
+    <div *ngIf="focusedUrl.status === globals.COMPLETE_STATUS">
+      <div fxLayoutGap="10px">
+        <button
+          mat-raised-button
+          class="action-buttons review-color"
+          (click)="reviewURL(focusedUrl.id, focusedUrl.status)"
+        >Review</button>
+        <button mat-raised-button class="action-buttons success-color">Update Settings</button>
+      </div>
+    </div>
+
+    <!-- warning queue option buttons -->
+    <div *ngIf="focusedUrl.status === globals.WARNING_STATUS">
+      <div fxLayoutGap="10px">
+        <button
+          mat-raised-button
+          class="action-buttons warn-color"
+          (click)="ignoreURL(focusedUrl.id, focusedUrl.status)"
+        >Ignore</button>
+        <button
+          mat-raised-button
+          class="action-buttons success-color"
+          (click)="updateSettings(focusedUrl.id)"
+        >Update Settings</button>
+      </div>
+    </div>
+
+    <!-- error queue option buttons -->
+    <div *ngIf="focusedUrl.status === globals.ERROR_STATUS">
+      <div fxLayoutGap="10px">
+        <button
+          mat-raised-button
+          class="action-buttons cancel-color"
+          (click)="ignoreURL(focusedUrl.id, focusedUrl.status)"
+        >Ignore</button>
+        <button
+          mat-raised-button
+          class="action-buttons success-color"
+          (click)="updateSettings(focusedUrl.id)"
+        >Update Settings</button>
+      </div>
+    </div>
+  </div>
+</mat-expansion-panel>
+

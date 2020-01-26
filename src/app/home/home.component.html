@@ -18,7 +18,8 @@
 
 <div class="container" style="padding-bottom: 10px; padding-left: 14px;" fxLayout>
   <!--<button mat-raised-button (click)="fileUpload()"><mat-icon>file_copy</mat-icon> Upload File</button>-->
-  <input class="ng-hide" type="file" (click)="fileUpload()">
+  <input class="ng-hide" type="file" (change)="fileChanged($event)">
+  <button mat-button (click)="fileUpload()" class="success-color">Upload</button>
 </div>
 
 <div class="container" fxLayout>

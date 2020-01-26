@@ -28,6 +28,8 @@ export class HomeComponent implements OnInit {
   // look up grid APIs
   private gridMap = {};
 
+  private file: any;
+
   // current grid data
   notStartedData = [];
   inProgressData = [];
@@ -93,12 +95,10 @@ export class HomeComponent implements OnInit {
 
     let sample = [
       'http://www.thefoodpantries.org',
-      'http://schenectadycounty.com/dss',
-      'cdcccc.org/',
-      'grassrootgivers.org',
     ];
 
-    for (let i = 0; i < 4; i++) {
+
+    for (let i = 0; i < sample.length; i++) {
 
       const contact: Contact = ContactFactory.create();
       url = UrlFactory.create({
@@ -131,6 +131,7 @@ export class HomeComponent implements OnInit {
       this.masterList[url.id] = url;
     }
     this.focusedUrl = url;
+
   }
 
   onGridReady(params, id) {
@@ -381,7 +382,35 @@ export class HomeComponent implements OnInit {
   }
 
   fileUpload() {
-    console.log('file upload');
+    let reader = new FileReader();
+    reader.onload = (e) => {
+      let lines = (reader.result as string).split('\n');
+      for (const line of lines) {
+
+        // ignore URLs prefixed with --
+        if (line.includes('--')) {
+          continue;
+        }
+
+        const contact = ContactFactory.create();
+        let url: Url = UrlFactory.create({contact});
+
+        url.url = line;
+        url.id = uuid.v4();
+
+        this.notStartedData.push({url: url.url, id: url.id});
+        this.masterList[url.id] = url;
+      }
+
+      this.refreshQueues();
+    };
+
+    reader.readAsText(this.file);
+  }
+
+  fileChanged(event) {
+    console.log('file changed');
+    this.file = event.target.files[0];
   }
 
   private getQueue(status) {

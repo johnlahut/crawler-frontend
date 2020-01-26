@@ -21,6 +21,7 @@ export class AddFilterDialogComponent {
 
   name: string;
   url: string;
+  data: string;
 
   constructor(
     public dialogRef: MatDialogRef<AddFilterDialogComponent>,
